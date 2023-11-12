@@ -7,6 +7,9 @@ const cors =require('cors')
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(cors())
+app.use(express.json())
+app.use(express.static('uploads'))
+
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost/multer-mongodb')
   .then(()=>{
@@ -30,6 +33,12 @@ const upload = multer({ storage: storage });
 app.use((req, res, next)=>{
   console.log(req.path,req.method)
   next();
+})
+/////
+app.get('/upload',(req,res)=>{
+  Models.find()
+    .then(resp=>res.status(200).json(resp))
+    .catch(err=>res.status(400).json(err))
 })
 /////////
 app.post('/upload', upload.single('file'), (req, res) => {

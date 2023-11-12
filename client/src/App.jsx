@@ -1,8 +1,9 @@
 import './App.css'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from "axios"
 function App() { 
   const[file,setFile]= useState()
+  const[img, setImages]=useState()
 
   const handle_uploade = (e) => {
     e.preventDefault()
@@ -12,10 +13,14 @@ function App() {
     formdata.append('file', file);
     console.log(formdata)
    axios.post(uploade,formdata)
-   .then(result =>console.log(result))
+   .then(result=>setImages(result.data[0].image))
    .catch(err => console.log(err.message))
   };
-
+useEffect(()=>{
+ axios.get("http://127.0.0.1:3000/upload")
+  .then(result=>setImages(result.data[0].image))
+  .catch(err=>console.log(err))
+},[])
   return (
     <>
       <form>
@@ -25,20 +30,11 @@ function App() {
           onChange={(e) => setFile(e.target.files[0])}
         />
       <input type="submit" onClick={handle_uploade} value="submit"/>
+    <br />
+    <img src={`http://localhost:3000/${img}`} alt="" width="100px" />
       </form>
     </>
   )
 }
 
 export default App
- // fetch(uploade, {
-    //   method: "post",
-    //   body: file,
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     console.log(data)
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
