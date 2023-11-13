@@ -25,51 +25,37 @@ mongoose.connect('mongodb://localhost/multer-mongodb')
     });
   })
   .catch(err => console.log(err));
-/////
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'files/');
+    cb(null, 'uploads');
   },
   filename: (req, file, cb) => {
     cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname));
   }
 });
+
 const upload = multer({ storage: storage });
-/////// to see the request methode and api end point
+
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
 });
-///// to send data to client
+
 app.get('/upload', (req, res) => {
   Models.find()
     .then(resp => res.status(200).json(resp))
     .catch(err => res.status(400).json(err));
 });
-//////// for file upload only
-app.post('/upload', upload.single('file'), (req, res) => {
-  const file = req.file;
-  if (file) {
-    try {
-      Models.create({ image: file.filename })
-        .then(result => res.status(200).json(result))
-        .catch(err => {
-          console.error(err.message);
-          res.status(400).json({ error: err.message });
-        });
-    } catch (error) {
-      console.error(error);
-      res.status(400).json({ error: error.message });
-    }
-  } else {
-    res.status(400).json({ error: 'No file uploaded.' });
-  }
-});
-////////// for image compresstion and store
+
+
+
 app.post("/compressImage", function (request, result) {
   const image = request.files.file;
   if (image.size > 0) {
+
     if (image.type == "image/png" || image.type == "image/jpeg") {
+      // var file_final ='';
       fileSystem.readFile(image.path, function (error, data) {
         if (error) throw error
         const filePath = "temp-uploads/" + (new Date().getTime()) + "-" + image.name
@@ -78,6 +64,7 @@ app.post("/compressImage", function (request, result) {
 
         fileSystem.writeFile(filePath, data, async function (error) {
           if (error) throw error
+
           compressImages(filePath, compressedFilePath, { compress_force: false, statistic: true, autoupdate: true }, false,
             { jpg: { engine: "mozjpeg", command: ["-quality", compression] } },
             { png: { engine: "pngquant", command: ["--quality=" + compression + "-" + compression, "-o"] } },
@@ -99,8 +86,10 @@ app.post("/compressImage", function (request, result) {
               })
             }
           )
+
           result.send("File has been compressed and saved.")
         })
+
         fileSystem.unlink(image.path, function (error) {
           if (error) throw error
         })

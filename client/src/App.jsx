@@ -7,7 +7,7 @@ function App() {
 
   const handle_uploade = (e) => {
     e.preventDefault()
-    const uploade = "http://127.0.0.1:3000/upload";
+    const uploade = "http://127.0.0.1:3000/compressImage";
     
     const formdata = new FormData()
     formdata.append('file', file);
